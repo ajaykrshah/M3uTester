@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HLS Stream Player</title>
+</head>
+<body>
+  <h1>Live Stream</h1>
+  <label for="streamSelect">Select Stream:</label>
+  <select id="streamSelect" onchange="changeStream(this.value)">
+    <!-- Options will be dynamically added here -->
+  </select>
+
+  <video id="video" controls style="width: 100%;"></video>
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script>
+    const streamUrls = {
+      'SONY HD': 'https://dai.google.com/linear/hls/event/dBdwOiGaQvy0TA1zOsjV6w/master.m3u8',
+      'SONY SAB HD': 'https://dai.google.com/linear/hls/event/CrTivkDESWqwvUj3zFEYEA/master.m3u8',
+      'SONY PIX HD': 'https://dai.google.com/linear/hls/event/x7rXWd2ERZ2tvyQWPmO1HA/master.m3u8',
+      'SONY MAX': 'https://dai.google.com/linear/hls/event/Oc1isQAET3WaNPoABfScmg/master.m3u8',
+      'SONY MAX HD': 'https://dai.google.com/linear/hls/event/UcjHNJmCQ1WRlGKlZm73QA/master.m3u8',
+      // Add more stream names and URLs here
+    };
+
+    let hls = null;
+
+    function initialize() {
+      const streamSelect = document.getElementById('streamSelect');
+      Object.keys(streamUrls).forEach((key) => {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = key;
+        streamSelect.appendChild(option);
+      });
+
+      // Set default stream on page load
+      changeStream(streamSelect.value);
+    }
+
+    function changeStream(selectedValue) {
+      if (hls) {
+        hls.destroy();
+      }
+
+      const video = document.getElementById('video');
+      hls = new Hls();
+
+      if (Hls.isSupported()) {
+        hls.loadSource(streamUrls[selectedValue]);
+        hls.attachMedia(video);
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = streamUrls[selectedValue];
+        video.addEventListener('loadedmetadata', () => {
+          video.play();
+        });
+      }
+    }
+
+    initialize(); // Start the initialization process
+  </script>
+</body>
+</html>
